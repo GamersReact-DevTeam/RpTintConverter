@@ -5,10 +5,19 @@ import java.awt.image.BufferedImage;
 
 public abstract class ImageFilter {
 
+    public int imageWidth = 0;
+    public int imageHeight = 0;
+
+    public int x = 0;
+    public int y = 0;
+
     public BufferedImage apply(BufferedImage image){
 
         int width = image.getWidth();
         int height = image.getHeight();
+
+        this.imageWidth = width;
+        this.imageHeight = height;
 
         for (int x = 0; x < width; x++){
             for (int y = 0; y < height; y++){
@@ -19,6 +28,8 @@ public abstract class ImageFilter {
                 int r = (p>>16)&0xff;
                 int g = (p>>8)&0xff;
                 int b = p&0xff;
+                this.x = x;
+                this.y = y;
 
                 Color color = getPixelColor(r, g, b, a);
 

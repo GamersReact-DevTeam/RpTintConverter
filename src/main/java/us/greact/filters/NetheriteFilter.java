@@ -7,8 +7,9 @@ public class NetheriteFilter extends ImageFilter {
     public Color getPixelColor(int r, int g, int b, int a) {
         // Grayscale
         int average = (r+g+b)/3;
+        int extraDarken = 0;
 
-        average = clamp(average - 100, 0, 255);
+        average = clamp(average - extraDarken, 0, 255);
 
         return new Color(average,average,average,a);
     }

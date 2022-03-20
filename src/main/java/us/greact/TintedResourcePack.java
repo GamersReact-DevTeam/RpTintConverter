@@ -18,7 +18,7 @@ import java.util.Objects;
 public class TintedResourcePack {
 
     private final File original;
-    private final File tintedDirectory;
+    private File tintedDirectory;
     private final List<File> allImportantFiles = new ArrayList<>();
 
     private String predicate = null;
@@ -26,6 +26,23 @@ public class TintedResourcePack {
     public TintedResourcePack(File directory) {
         this.original = directory;
         this.tintedDirectory = new File(Main.resultPacks.getPath()+"/"+original.getName()+"_tinted");
+        tintedDirectory = checkIfExists(1, tintedDirectory, tintedDirectory.getPath());
+    }
+
+    public File checkIfExists(int currentLoop, File directory, String originalPath){
+        if (directory.exists()){
+            File newCheck = new File(originalPath + " ("+currentLoop+")");
+            currentLoop++;
+            if (newCheck.exists()){
+                return checkIfExists(currentLoop, newCheck, originalPath);
+            }
+            else {
+                return newCheck;
+            }
+        }
+        else {
+            return directory;
+        }
     }
 
     public void setPredicate(String predicate){
@@ -190,7 +207,6 @@ public class TintedResourcePack {
 
     private void makeDirectoryProper(File file) {
         File nonImportantDirectory = new File(file.getPath().replace(file.getName(), ""));
-        Main.logger.info(nonImportantDirectory.getPath());
         nonImportantDirectory.mkdirs();
     }
 
