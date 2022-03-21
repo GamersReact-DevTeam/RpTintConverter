@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,6 +21,12 @@ public class TintedResourcePack {
     private final File original;
     private File tintedDirectory;
     private final List<File> allImportantFiles = new ArrayList<>();
+    private static HashMap<String, String> manualAdditions = new HashMap<>();
+
+    static {
+        manualAdditions.put("compass", "_00");
+        manualAdditions.put("clock", "_00");
+    }
 
     private String predicate = null;
 
@@ -124,7 +131,7 @@ public class TintedResourcePack {
                         JsonObject predicate = new JsonObject();
 
                         predicate.add(this.predicate, new JsonPrimitive(1));
-                        object.add("model", new JsonPrimitive("item/" + tintModelFile.getName()));
+                        object.add("model", new JsonPrimitive("item/" + tintModelFile.getName().replace(".json", "")));
                         object.add("predicate", predicate);
 
                         JavaModel.Override override = new JavaModel.Override(object);
@@ -137,19 +144,24 @@ public class TintedResourcePack {
                         javaModel.setOverrides(overrides);
                     } else {
                         List<JavaModel.Override> overrides = javaModel.getOverrides();
+
                         List<JavaModel.Override> newOverrides = new ArrayList<>();
+
+
 
                         JsonObject baseObject = new JsonObject();
                         JsonObject basePredicate = new JsonObject();
 
                         // Need some kind of predicate object inside the model already because I am a bad developer.
                         basePredicate.add(this.predicate, new JsonPrimitive(1));
-                        baseObject.add("model", new JsonPrimitive("item/" + tintModelFile.getName()));
+                        baseObject.add("model", new JsonPrimitive("item/" + tintModelFile.getName().replace(".json", "")));
                         baseObject.add("predicate", basePredicate);
 
                         JavaModel.Override baseOverride = new JavaModel.Override(baseObject);
 
                         newOverrides.add(baseOverride);
+
+                        newOverrides.addAll(overrides);
 
                         for (JavaModel.Override override : overrides) {
 
@@ -158,12 +170,12 @@ public class TintedResourcePack {
 
                             // Need some kind of predicate object inside the model already because I am a bad developer.
                             predicate.add(this.predicate, new JsonPrimitive(1));
-                            object.add("model", new JsonPrimitive("item/" + tintModelFile.getName()));
+                            object.add("model", new JsonPrimitive("item/" + tintModelFile.getName().replace(".json", "")));
                             object.add("predicate", predicate);
 
                             JavaModel.Override newOverride = new JavaModel.Override(object);
 
-                            JsonObject oldPredicate = override.getPredicate();
+                            JsonObject oldPredicate = override.getPredicate().deepCopy();
                             oldPredicate.add(this.predicate, new JsonPrimitive(1));
 
                             newOverride.setPredicate(oldPredicate);
@@ -174,11 +186,18 @@ public class TintedResourcePack {
                             newOverrides.add(newOverride);
                         }
 
-                        newOverrides.addAll(overrides);
+
                         javaModel.setOverrides(newOverrides);
                     }
 
-                    JavaModel tintModel = new JavaModel(javaModel.getParent(), "item/"+file.getName().replace(".json", "_tinted"));
+                    String intermediary = "";
+
+                    if (getIntermediary(file, ".json") != null){
+                        intermediary = getIntermediary(file, ".json");
+                        Main.logger.info("Has intermediary! Probably a clock or a compass.. 00's man..."+" "+file.getName() +" "+intermediary);
+                    }
+
+                    JavaModel tintModel = new JavaModel(javaModel.getParent(), "item/"+file.getName().replace(".json", intermediary+"_tinted"));
 
                     File tintModelMirror = new File(getMirrorPath(tintModelFile.getPath()));
 
@@ -203,6 +222,10 @@ public class TintedResourcePack {
                 FileUtils.copyFile(file, new File(getMirrorPath(file.getPath())));
             }
         }
+    }
+
+    private String getIntermediary(File file, String removal){
+        return manualAdditions.get(file.getName().replace(removal, ""));
     }
 
     private void makeDirectoryProper(File file) {
