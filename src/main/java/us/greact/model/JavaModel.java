@@ -34,7 +34,7 @@ public class JavaModel {
     }
 
     public JavaModel(String parent, String texture){
-        gson = new Gson();
+        gson = new GsonBuilder().setPrettyPrinting().create();
         JsonObject jsonObject = new JsonObject();
         jsonObject.add("parent", new JsonPrimitive(parent));
         JsonObject textures = new JsonObject();
