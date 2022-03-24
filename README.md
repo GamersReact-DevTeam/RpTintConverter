@@ -1,5 +1,7 @@
 # RpTintConverter
-Changes tints of images in a Minecraft Resource pack and overrides model jsons under a specific predicate
+Applies image filters to all images in a Minecraft Resource pack and overrides model jsons under a specific predicate
+
+Image filters are written in code. There are currently only two, hue (HueShift) and netherite (GrayScale with optional darkening)
 
 ## Usage
 Run jar in its own folder, use command line. It will prompt you with settings you can modify via the console
